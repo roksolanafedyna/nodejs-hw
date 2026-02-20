@@ -1,6 +1,6 @@
 import express from 'express';
-import cors from "cors";
-import pino from "pino-http";
+import cors from 'cors';
+import pino from 'pino-http';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -20,7 +20,8 @@ app.use(
         colorize: true,
         translateTime: 'HH:MM:ss',
         ignore: 'pid,hostname',
-        messageFormat: '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
+        messageFormat:
+          '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
         hideObject: true,
       },
     },
@@ -29,29 +30,28 @@ app.use(
 
 app.get('/notes', (req, res) => {
   res.status(200).json({
-	"message": "Retrieved all notes"
-});
-});
-
-app.get('/notes/:noteId', (req,res)=>{
-  const{ noteId }=req.params;
-	res.status(200).json({"message": `Retrieved note with ID: ${noteId}`
+    message: 'Retrieved all notes',
   });
 });
 
-app.get("/test-error", (req, res)=> {
-  throw new Error("Simulated server error");
+app.get('/notes/:noteId', (req, res) => {
+  const { noteId } = req.params;
+  res.status(200).json({ message: `Retrieved note with ID: ${noteId}` });
 });
 
-app.use((req, res)=> {
+app.get('/test-error', (req, res) => {
+  throw new Error('Simulated server error');
+});
+
+app.use((req, res) => {
   res.status(404).json({
-    message: "Route not found"
+    message: 'Route not found',
   });
 });
 
-app.use((error, req, res, next)=> {
+app.use((error, req, res, next) => {
   res.status(500).json({
-    message: error.message
+    message: error.message,
   });
 });
 
