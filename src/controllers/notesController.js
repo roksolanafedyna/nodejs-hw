@@ -33,7 +33,7 @@ export const createNote = async (req, res, next) => {
   }
 };
 
-export const deleteNote = async (res, req, next) => {
+export const deleteNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
     const note = await Note.findByIdAndDelete(noteId);
@@ -47,7 +47,7 @@ export const deleteNote = async (res, req, next) => {
   }
 };
 
-export const updateNote = async (res, req, next) => {
+export const updateNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
     const updateNote = await Note.findByIdAndUpdate(noteId, req.body, {
