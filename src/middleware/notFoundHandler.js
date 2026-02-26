@@ -1,9 +1,5 @@
-import express from 'express';
-
-const app = express();
-
-export const notFoundHandler = app.use((req, res) => {
+export const notFoundHandler = (req, res, next) => {
   res.status(404).json({
     message: 'Route not found',
   });
-});
+};

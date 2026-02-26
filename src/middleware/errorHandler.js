@@ -1,8 +1,8 @@
-import express from 'express';
+export const errorHandler = (error, req, res, next) => {
+  const status = error.status || 500;
 
-const app = express();
-export const errorHandler = app.use((error, req, res, next) => {
-  res.status(500).json({
+  res.status(status).json({
+    status: status,
     message: error.message,
   });
-});
+};
