@@ -6,7 +6,6 @@ import {
   deleteNote,
   updateNote,
 } from '../controllers/notesController.js';
-import { round } from 'prelude-ls';
 
 const router = express.Router();
 
