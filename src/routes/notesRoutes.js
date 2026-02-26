@@ -15,7 +15,7 @@ router.get('/notes/:noteId', getNoteById);
 
 router.delete('/notes/:noteId', deleteNote);
 
-router.post('notes', createNote);
+router.post('/notes', createNote);
 
 router.patch('/notes/:noteId', updateNote);
 
