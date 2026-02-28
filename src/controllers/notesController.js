@@ -50,15 +50,15 @@ export const deleteNote = async (req, res, next) => {
 export const updateNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
-    const updateNote = await Note.findByIdAndUpdate(noteId, req.body, {
+    const updatedNote = await Note.findByIdAndUpdate(noteId, req.body, {
       new: true,
       runValidators: true,
     });
 
-    if (!updateNote) {
+    if (!updatedNote) {
       throw createHttpError(404, 'Note not found');
     }
-    res.status(200).json(updateNote);
+    res.status(200).json(updatedNote);
   } catch (error) {
     next(error);
   }
