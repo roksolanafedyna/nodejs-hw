@@ -6,15 +6,12 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import notesRouter from './routes/notesRoutes.js';
-import { Note } from './models/note.js';
 
 dotenv.config();
 
 const startServer = async () => {
   try {
     await connectMongoDB();
-    const count = await Note.countDocuments();
-    console.log(`У базі знайдено нотаток: ${count}`);
     const app = express();
     const PORT = process.env.PORT || 3000;
 
