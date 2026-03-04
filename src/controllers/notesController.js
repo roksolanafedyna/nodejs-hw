@@ -3,7 +3,9 @@ import { Note } from '../models/note.js';
 
 export const getAllNotes = async (req, res, next) => {
   try {
-    const { page, perPage, tag, search } = req.query;
+    const page = Number(req.query.page);
+    const perPage = Number(req.query.perPage);
+    const { tag, search } = req.query;
     const filter = {};
 
     if (tag) {
