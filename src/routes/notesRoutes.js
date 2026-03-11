@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from "express";
 import { celebrate } from 'celebrate';
 import {
   getAllNotes,
@@ -13,8 +13,10 @@ import {
   createNoteSchema,
   updateNoteSchema,
 } from '../validations/notesValidation.js';
+import { authenticate } from '../middleware/authenticate.js';
 
-const router = express.Router();
+const router = Router();
+router.use('/notes', authenticate);
 
 router.get('/notes', celebrate(getAllNotesSchema), getAllNotes);
 
