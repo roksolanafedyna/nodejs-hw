@@ -53,7 +53,6 @@ const newSession = await createSession(session.userId);
 setSessionCookies(res, newSession);
 
 res.status(200).json({
-    status: 200,
     message: 'Session refreshed'});
 };
 
