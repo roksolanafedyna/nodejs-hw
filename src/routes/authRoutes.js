@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import { registerUser, loginUser, refreshUserSession, logoutUser } from "../controllers/authController";
-import { loginUserSchema, registerUserSchema } from "../validations/authValidation";
+import { registerUser, loginUser, refreshUserSession, logoutUser } from "../controllers/authController.js";
+import { loginUserSchema, registerUserSchema } from "../validations/authValidation.js";
 
 export const router=Router();
 router.post('/auth/register', celebrate(registerUserSchema), registerUser
