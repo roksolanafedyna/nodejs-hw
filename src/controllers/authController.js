@@ -1,3 +1,8 @@
+import jwt from 'jsonwebtoken';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import handlebars from 'handlebars';
+import { sendMail } from '../utils/sendMail.js';
 import createHttpError from "http-errors";
 import { User } from "../models/user.js";
 import bcrypt from 'bcrypt';
@@ -66,4 +71,75 @@ res.clearCookie('accessToken');
 res.clearCookie('refreshToken');
 
 res.status(204).send();
+};
+
+export const requestResetEmail=async(req, res)=>{
+const {email}=req.body;
+
+  const user= await User.findOne({email});
+  if(!user){
+    return res.status(200).json(
+    { message: 'Password reset email sent successfully' }
+);
+}
+const resetToken = jwt.sign(
+    { sub: user._id, email },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' },
+  );
+
+  try {
+    const templatePath = path.resolve('src', 'templates', 'reset-password-email.html');
+    const templateSource = await fs.readFile(templatePath, 'utf-8');
+    const template = handlebars.compile(templateSource);
+
+    const resetLink = `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`;
+
+    const html = template({
+      name: user.name || 'Користувач',
+      link: resetLink,
+    });
+    await sendMail({
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: 'Reset your password',
+      html:html,
+    });
+  } catch {
+    throw createHttpError(500, 'Failed to send the email, please try again later.');
+  }
+
+  res.status(200).json({
+    message: 'Password reset email sent successfully' });
+};
+
+export const resetPassword=async(req,res)=>{
+const { token, password } = req.body;
+
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    throw createHttpError(401, 'Invalid or expired token');
+  }
+
+  const user = await User.findOne({
+    _id: decoded.sub,
+    email: decoded.email,
+  });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await User.findByIdAndUpdate(user._id, {
+    password: hashedPassword,
+  });
+
+  res.status(200).json({
+    message: 'Password reset successfully',
+  });
 };

@@ -6,8 +6,8 @@ export const getAllNotes = async (req, res, next) => {
     const page = Number(req.query.page);
     const perPage = Number(req.query.perPage);
     const { tag, search } = req.query;
-    const userId=req.user._id;
-    const filter = {userId};
+    const userId = req.user._id;
+    const filter = { userId };
 
     if (tag) {
       filter.tag = tag;
@@ -80,10 +80,14 @@ export const updateNote = async (req, res, next) => {
   const { _id: userId } = req.user;
   try {
     const { noteId } = req.params;
-    const updatedNote = await Note.findOneAndUpdate({ _id: noteId, userId }, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedNote = await Note.findOneAndUpdate(
+      { _id: noteId, userId },
+      req.body,
+      {
+        returnDocument: 'after',
+        runValidators: true,
+      },
+    );
 
     if (!updatedNote) {
       throw createHttpError(404, 'Note not found');
