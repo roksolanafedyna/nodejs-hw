@@ -1,60 +1,68 @@
 import express from 'express';
 import cors from 'cors';
-import pino from 'pino-http';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import { errors } from 'celebrate';
+import { logger } from './middleware/logger.js';
+import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { connectMongoDB } from './db/connectMongoDB.js';
+import notesRouter from './routes/notesRoutes.js';
+import authRouter from './routes/authRoutes.js';
+import userRouter from './routes/userRoutes.js';
 
 dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(cors());
-
-app.use(
-  pino({
-    level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'HH:MM:ss',
-        ignore: 'pid,hostname',
-        messageFormat:
-          '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
-        hideObject: true,
-      },
-    },
-  }),
-);
-
-app.get('/notes', (req, res) => {
-  res.status(200).json({
-    message: 'Retrieved all notes',
-  });
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
 });
 
-app.get('/notes/:noteId', (req, res) => {
-  const { noteId } = req.params;
-  res.status(200).json({ message: `Retrieved note with ID: ${noteId}` });
-});
 
-app.get('/test-error', (req, res) => {
-  throw new Error('Simulated server error');
-});
+export const sendMail = async (to, subject, html) => {
+  try {
+    const info = await transporter.sendMail({
+      from: `"Мій Додаток" <${process.env.BREVO_USER}>`,
+      to,
+      subject,
+      html,
+    });
+    return info;
+  } catch (error) {
+    console.error('Помилка поштового сервісу:', error);
+    throw error;
+  }
+};
 
-app.use((req, res) => {
-  res.status(404).json({
-    message: 'Route not found',
-  });
-});
+const startServer = async () => {
+  try {
+    await connectMongoDB();
+    const app = express();
+    const PORT = process.env.PORT || 3000;
 
-app.use((error, req, res, next) => {
-  res.status(500).json({
-    message: error.message,
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    app.use(logger);
+    app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(authRouter);
+    app.use(userRouter);
+    app.use(notesRouter);
+    app.use(notFoundHandler);
+    app.use(errors());
+    app.use(errorHandler);
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start the server:', error);
+  }
+};
+startServer();
