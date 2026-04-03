@@ -1,4 +1,4 @@
-import { Readable } from "nodemailer/lib/xoauth2";
+import { Readable } from "nodemailer/lib/xoauth2/index.js";
 import {v2 as cloudinary} from "cloudinary";
 
 cloudinary.config({
